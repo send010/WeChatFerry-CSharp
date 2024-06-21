@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34902.65
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeChatFerry-CSharp", "WeChat\WeChatFerry-CSharp.csproj", "{7086B94F-34FD-454C-A2AC-403890BF819E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nng.NET", "C:\Users\Administrator\Downloads\NanomsgNG.NET-master\nng.NET\nng.NET.csproj", "{2F2F3C34-8A43-47CE-8442-912CB21DC961}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7086B94F-34FD-454C-A2AC-403890BF819E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7086B94F-34FD-454C-A2AC-403890BF819E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7086B94F-34FD-454C-A2AC-403890BF819E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7086B94F-34FD-454C-A2AC-403890BF819E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F2F3C34-8A43-47CE-8442-912CB21DC961}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F2F3C34-8A43-47CE-8442-912CB21DC961}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F2F3C34-8A43-47CE-8442-912CB21DC961}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F2F3C34-8A43-47CE-8442-912CB21DC961}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0E0388E9-3EA9-42D4-98C2-DD282EE7302C}
+	EndGlobalSection
+EndGlobal
