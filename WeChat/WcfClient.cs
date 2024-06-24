@@ -120,6 +120,54 @@ namespace WeChat
         }
 
 
+        public int SendText(string msg, string receiver, string at = "")
+        {
+            var request1 = new Request() { Func = Functions.FuncSendTxt, Txt = new TextMsg() { Msg = msg, Receiver = receiver, Aters = at } };
+            CmdSocket.Send(request1.ToByteArray());
+
+            var recvMsg = CmdSocket.RecvMsg().Unwrap();
+            var recvData = recvMsg.AsSpan().ToArray();
+            var response = Response.Parser.ParseFrom(recvData);
+
+            return response.Status;
+        }
+
+        public int SendImg(string imgpath, string receiver)
+        {
+            var request1 = new Request() { Func = Functions.FuncSendImg, File =  new PathMsg() { Path = imgpath, Receiver = receiver } };
+            CmdSocket.Send(request1.ToByteArray());
+
+            var recvMsg = CmdSocket.RecvMsg().Unwrap();
+            var recvData = recvMsg.AsSpan().ToArray();
+            var response = Response.Parser.ParseFrom(recvData);
+
+            return response.Status;
+        }
+        public int SendEmotion(string imgpath, string receiver)
+        {
+            var request1 = new Request() { Func = Functions.FuncSendEmotion, File =new PathMsg { Path = imgpath, Receiver = receiver } };
+            CmdSocket.Send(request1.ToByteArray());
+
+            var recvMsg = CmdSocket.RecvMsg().Unwrap();
+            var recvData = recvMsg.AsSpan().ToArray();
+            var response = Response.Parser.ParseFrom(recvData);
+
+            return response.Status;
+        }
+        
+        public int ForwardMsg(ulong msgid, string receiver)
+        {
+            var request1 = new Request() { Func = Functions.FuncForwardMsg, Fm = new ForwardMsg {  Id = msgid, Receiver = receiver } };
+            CmdSocket.Send(request1.ToByteArray());
+
+            var recvMsg = CmdSocket.RecvMsg().Unwrap();
+            var recvData = recvMsg.AsSpan().ToArray();
+            var response = Response.Parser.ParseFrom(recvData);
+
+            return response.Status;
+        }
+
+
         // 获取完整通讯录
         // return []*RpcContact 完整通讯录
         public List<global::Wcf.RpcContact> GetContacts()
@@ -131,7 +179,7 @@ namespace WeChat
             var recvData = recvMsg.AsSpan().ToArray();
             var response = Response.Parser.ParseFrom(recvData);
 
-            return response.Contacts.Contacts.ToList();
+            return response?.Contacts?.Contacts.ToList();
         }
 
         // 获取好友列表
@@ -156,20 +204,21 @@ namespace WeChat
         {
             var result = new List<global::Wcf.RpcContact>();
             var data = GetContacts();
-
-            foreach (var item in data)
+            if(data != null)
             {
-                if(CmdHelper.ContactType(item.Wxid) == "群聊")
+                foreach (var item in data)
                 {
-                    result.Add(item);
+                    if (CmdHelper.ContactType(item.Wxid) == "群聊")
+                    {
+                        result.Add(item);
+                    }
                 }
-            }
 
+            }
             return result;
         }
 
-        // 获取完整通讯录
-        // return []*RpcContact 完整通讯录
+
         public RpcContact GetInfoByWxid(string wxid)
         {
             Request request1 = new Request() { Func = Functions.FuncGetContactInfo , Str = wxid };
@@ -179,7 +228,7 @@ namespace WeChat
             var recvData = recvMsg.AsSpan().ToArray();
             var response = Response.Parser.ParseFrom(recvData);
 
-            if(response.Contacts.Contacts.Count > 0)
+            if(response.Contacts?.Contacts?.Count > 0)
             {
                 return response.Contacts.Contacts[0];
             }
