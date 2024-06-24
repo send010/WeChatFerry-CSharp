@@ -15,11 +15,11 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using Wcf;
-using WeChat;
 
-namespace nngcat
+namespace WeChatFerry
 {
     class Program
     {
@@ -33,24 +33,55 @@ namespace nngcat
                 Console.WriteLine(a.Name +" "+ wcfClient.GetAliasInChatRoom(msg.Sender, msg.Roomid) +" " +msg.Content);
             }
         }
+
+
+
+
+        private delegate void WxInitSDKDelegate(bool isHook, int pid);
+        private delegate void WxDestroySDKDelegate();
+
+
         static void Main(string[] args)
         {
 
-            //启动wcfbin
-            string wcfexe = Directory.GetCurrentDirectory()  + "\\wcfbin\\v39.0.14\\wcf.exe";
-            ProcessStartInfo startInfo = new ProcessStartInfo(wcfexe);
-            startInfo.Arguments = "start 6666 [debug]";
-            var process = Process.Start(startInfo);
+            //{
+            //    //启动wcfbin
+            //    // wcf 39.0.14 版本 微信 3.9.2.23版本   启动方式
+            //    string wcfexe = Directory.GetCurrentDirectory() + "\\wcfbin\\v39.0.14\\wcf.exe";
+            //    ProcessStartInfo startInfo = new ProcessStartInfo(wcfexe);
+            //    startInfo.Arguments = "start 6666 [debug]";
+            //    var process = Process.Start(startInfo);
+            //}
+
+
+
+            {
+                string dllPath = Directory.GetCurrentDirectory() + "\\wcfbin\\v3.9.10.27\\sdk.dll";
+                IntPtr pDll = NativeMethods.LoadLibrary(dllPath);
+                if (pDll == IntPtr.Zero)
+                {
+                    Console.WriteLine("Failed to load DLL.");
+                    return;
+                }
+
+                // 获取函数指针
+                IntPtr pInitSDK = NativeMethods.GetProcAddress(pDll, "WxInitSDK");
+                IntPtr pDestroySDK = NativeMethods.GetProcAddress(pDll, "WxDestroySDK");
+
+                // 将函数指针转换为委托
+                WxInitSDKDelegate WxInitSDK = (WxInitSDKDelegate)Marshal.GetDelegateForFunctionPointer(pInitSDK, typeof(WxInitSDKDelegate));
+                WxDestroySDKDelegate WxDestroySDK = (WxDestroySDKDelegate)Marshal.GetDelegateForFunctionPointer(pDestroySDK, typeof(WxDestroySDKDelegate));
+
+                // 调用 DLL 函数
+                WxInitSDK(false, 6666);
+            }
+
 
 
             wcfClient = new WcfClient(6666);
             wcfClient.EnableRecvTxt(RecvText);
-
-
             ChatRooms = wcfClient.GetChatRooms();
-
             Console.Read();
-
         }
 
     }

@@ -14,7 +14,7 @@ using Wcf;
 using Wcferry;
 using WeChatFerry;
 
-namespace WeChat
+namespace WeChatFerry
 {
     public class WcfClient
     {
