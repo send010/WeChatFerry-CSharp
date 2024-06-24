@@ -2,7 +2,6 @@
 using Grpc.Core;
 using Grpc.Net.Client;
 using nng;
-using nngcat;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -135,6 +134,17 @@ namespace WeChatFerry
         public int SendImg(string imgpath, string receiver)
         {
             var request1 = new Request() { Func = Functions.FuncSendImg, File =  new PathMsg() { Path = imgpath, Receiver = receiver } };
+            CmdSocket.Send(request1.ToByteArray());
+
+            var recvMsg = CmdSocket.RecvMsg().Unwrap();
+            var recvData = recvMsg.AsSpan().ToArray();
+            var response = Response.Parser.ParseFrom(recvData);
+
+            return response.Status;
+        }
+        public int SendFile(string imgpath, string receiver)
+        {
+            var request1 = new Request() { Func = Functions.FuncSendFile, File =  new PathMsg() { Path = imgpath, Receiver = receiver } };
             CmdSocket.Send(request1.ToByteArray());
 
             var recvMsg = CmdSocket.RecvMsg().Unwrap();
