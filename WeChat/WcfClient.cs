@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Wcf;
 using Wcferry;
 using WeChatFerry;
+using WeChatFerry.Model;
 
 namespace WeChatFerry
 {
@@ -40,6 +41,11 @@ namespace WeChatFerry
 
             CmdSocket = Factory.PairOpen().ThenDial(url+":"+port).Unwrap();
 
+        }
+
+        public bool ConnectionStatus()
+        {
+            return CmdSocket.IsValid();
         }
 
         // 检查登录状态
@@ -165,7 +171,7 @@ namespace WeChatFerry
             return response.Status;
         }
         
-        public int ForwardMsg(ulong msgid, string receiver)
+        public int ForwardMsg(ulong msgid, string receiver,int count = 3)
         {
             var request1 = new Request() { Func = Functions.FuncForwardMsg, Fm = new ForwardMsg {  Id = msgid, Receiver = receiver } };
             CmdSocket.Send(request1.ToByteArray());
@@ -173,6 +179,11 @@ namespace WeChatFerry
             var recvMsg = CmdSocket.RecvMsg().Unwrap();
             var recvData = recvMsg.AsSpan().ToArray();
             var response = Response.Parser.ParseFrom(recvData);
+
+            if(response.Status != 1 && count != 0)
+            {
+                return ForwardMsg(msgid, receiver, count-1);
+            }
 
             return response.Status;
         }
@@ -214,7 +225,7 @@ namespace WeChatFerry
         {
             var result = new List<global::Wcf.RpcContact>();
             var data = GetContacts();
-            if(data != null)
+            if (data != null)
             {
                 foreach (var item in data)
                 {
@@ -228,6 +239,24 @@ namespace WeChatFerry
             return result;
         }
 
+        // 从数据库文件中获取群信息
+        public List<IDNameModel> GetChatRoomsByDB()
+        {
+            var result = new List<IDNameModel>();
+            var sessionlist = DbSqlQuery("MicroMsg.db", "SELECT strUsrName,strNickName FROM Session;");
+
+            for (int i = 0; i< sessionlist.Rows.Count; i++)
+            {
+                var id = sessionlist.Rows[i]["strUsrName"].ToString();
+
+                if (id.EndsWith("@chatroom") && !result.Any(p=>p.Id == id))
+                {
+                    result.Add(new IDNameModel() { Id = id, Name = sessionlist.Rows[i]["strNickName"].ToString() });
+                }
+
+            }
+            return result;
+        }
 
         public RpcContact GetInfoByWxid(string wxid)
         {
@@ -246,9 +275,6 @@ namespace WeChatFerry
             return null;
         }
 
-
-        // 获取完整通讯录
-        // return []*RpcContact 完整通讯录
         public DataTable DbSqlQuery(string db,string sql)
         {
             Request request1 = new Request() { Func = Functions.FuncExecDbQuery,Query = new DbQuery() { Db = db, Sql = sql } };
@@ -260,25 +286,29 @@ namespace WeChatFerry
 
             DataTable dt = new DataTable();
 
-            foreach(DbRow row in response.Rows.Rows)
+            if(response.Rows != null)
             {
-                var nrow = dt.NewRow();
-                foreach (var item in row.Fields)
+                foreach (DbRow row in response.Rows?.Rows)
                 {
-                    if (!dt.Columns.Contains(item.Column))
+                    var nrow = dt.NewRow();
+                    foreach (var item in row.Fields)
                     {
-                        dt.Columns.Add(item.Column);
+                        if (!dt.Columns.Contains(item.Column))
+                        {
+                            dt.Columns.Add(item.Column);
+                        }
+                        if (item.Type == 4)
+                        {
+                            nrow[item.Column] = item.Content.ToBase64();
+                        }
+                        else
+                        {
+                            nrow[item.Column] = item.Content.ToStringUtf8();
+                        }
                     }
-                    if(item.Type == 4)
-                    {
-                        nrow[item.Column] = item.Content.ToBase64();
-                    }
-                    else
-                    {
-                        nrow[item.Column] = item.Content.ToStringUtf8();
-                    }
+                    dt.Rows.Add(nrow);
                 }
-                dt.Rows.Add(nrow);
+
             }
 
             return dt;
