@@ -353,6 +353,22 @@ namespace WeChatFerry
             return nickName;
         }
 
+        // 获取群成员昵称
+        // param wxid string wxid
+        // param roomid string 群的 id
+        // return string 群成员昵称
+        public string GetAlias(string wxid)
+        {
+            var nickName = wxid;
+
+            var userlist = DbSqlQuery("MicroMsg.db", "SELECT NickName FROM Contact WHERE UserName = '" + wxid + "';");
+            if (userlist.Rows.Count > 0)
+            {
+                nickName = userlist.Rows[0]["NickName"].ToString();
+            }
+            return nickName;
+        }
+
 
     }
 }
