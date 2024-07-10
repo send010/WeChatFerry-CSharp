@@ -133,7 +133,7 @@ namespace WeChatFerry
             var recvMsg = CmdSocket.RecvMsg().Unwrap();
             var recvData = recvMsg.AsSpan().ToArray();
             var response = Response.Parser.ParseFrom(recvData);
-
+            
             return response.Status;
         }
 
