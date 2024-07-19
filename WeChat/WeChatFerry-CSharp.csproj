@@ -17,12 +17,10 @@
 		<PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+    <PackageReference Include="NanomsgNG.NET" Version="1.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="C:\Users\Administrator\Downloads\NanomsgNG.NET-master\nng.NET\nng.NET.csproj" />
-  </ItemGroup>
 
 	<ItemGroup>
 		<Protobuf Include="wcf.proto" GrpcServices="Client" />
