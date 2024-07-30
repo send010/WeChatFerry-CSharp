@@ -188,6 +188,28 @@ namespace WeChatFerry
             return response.Status;
         }
 
+        /// <summary>
+        /// 发送卡片消息
+        /// </summary>
+        /// <param name="name">显示名字</param>
+        /// <param name="account">公众号 id</param>
+        /// <param name="title">标题</param>
+        /// <param name="digest">摘要</param>
+        /// <param name="url">url</param>
+        /// <param name="thumburl">略缩图</param>
+        /// <param name="receiver">接收人</param>
+        /// <returns></returns>
+        public int SendRichText(string name, string account, string title, string digest, string url, string thumburl, string receiver)
+        {
+            var request1 = new Request() { Func = Functions.FuncSendRichTxt, Rt = new RichText() { Name = name, Account = account, Title = title, Digest = digest, Url = url, Thumburl = thumburl, Receiver = receiver } };
+            CmdSocket.Send(request1.ToByteArray());
+
+            var recvMsg = CmdSocket.RecvMsg().Unwrap();
+            var recvData = recvMsg.AsSpan().ToArray();
+            var response = Response.Parser.ParseFrom(recvData);
+
+            return response.Status;
+        } 
 
         // 获取完整通讯录
         // return []*RpcContact 完整通讯录
